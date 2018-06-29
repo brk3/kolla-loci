@@ -2,22 +2,25 @@
 
 set -ex
 
-distro=$(awk -F= '/^ID=/ {gsub(/\"/, "", $2); print $2}' /etc/*release)
-export distro=${DISTRO:=$distro}
+kolla_scripts="/var/lib/openstack/lib/python2.7/site-packages/kolla_scripts"
 
-case ${distro} in
-    debian|ubuntu)
-        # TODO
-        ;;
-    centos)
-        yum -y install git
-        pip install --no-cache-dir git+https://github.com/brk3/kolla-scripts
-        ;;
-    *)
-        echo "Unknown distro: ${distro}"
-        exit 1
-        ;;
-esac
+# TODO(pbourke): remove index-url once openstack mirror refreshes
+pip install --index-url https://pypi.org/simple/ --no-cache-dir kolla-scripts
 
-$(dirname $0)/config.sh
-$(dirname $0)/cleanup.sh
+cp ${kolla_scripts}/base/set_configs.py /usr/local/bin/kolla_set_configs
+cp ${kolla_scripts}/base/start.sh /usr/local/bin/kolla_start
+cp ${kolla_scripts}/base/sudoers /etc/sudoers
+
+if [[ "$(ls ${kolla_scripts}/${PROJECT}/${SERVICE}/*sudo* 2>/dev/null)" != "" ]]; then
+    cp "${kolla_scripts}/${PROJECT}/${SERVICE}/*sudo*" /etc/sudoers.d
+fi
+
+cp ${kolla_scripts}/${PROJECT}/${SERVICE}/extend_start.sh /usr/local/bin/kolla_extend_start
+cp ${kolla_scripts}/${PROJECT}/${SERVICE}/extend_start.sh /usr/local/bin/kolla_${PROJECT}_extend_start
+
+chmod 0755 /usr/local/bin/*
+
+cp -r /var/lib/openstack/etc/${PROJECT}/* /etc/${PROJECT}
+
+groupadd --force --gid 42400 kolla
+usermod -a -G kolla ${PROJECT}
