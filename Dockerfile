@@ -11,9 +11,9 @@ ARG KOLLA_VERSION=master
 
 LABEL kolla_version ${KOLLA_VERSION}
 
-COPY scripts /opt/kolla-loci/scripts
+COPY install.sh /opt/kolla-loci/
 
-RUN /opt/kolla-loci/scripts/install.sh
+RUN /opt/kolla-loci/install.sh
 
 USER ${USER}
 CMD ["kolla_start"]
