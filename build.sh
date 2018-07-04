@@ -5,11 +5,11 @@ set -ex
 project=$1
 service=$2
 
-must_be_root=(keystone)
+run_as_root=(keystone nova-libvirt)
 user=${project}
 
-for i in "${must_be_root[@]}"; do
-    if [[ "${i}" == "${project}" ]]; then
+for i in "${run_as_root[@]}"; do
+    if [[ "${i}" == "${project}" || "${i}" == "${service}" ]]; then
         user="root"
         break
     fi

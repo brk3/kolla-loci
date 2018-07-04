@@ -2,7 +2,7 @@
 
 set -x
 
-kolla_scripts="/var/lib/openstack/lib/python2.7/site-packages/kolla_scripts"
+kolla_scripts="/var/lib/openstack/share/kolla/docker"
 
 function copy_base {
     cp ${kolla_scripts}/base/set_configs.py /usr/local/bin/kolla_set_configs
@@ -63,8 +63,8 @@ function keystone_workarounds {
     fi
     if [[ "${SERVICE}" == "keystone-ssh" ]]; then
         yum -y install openssh openssh-server rsync
-        chsh --shell /bin/bash keystone
         yum clean all
+        chsh --shell /bin/bash keystone
     fi
     if [[ "${SERVICE}" == "keystone-fernet" ]]; then
         yum -y install rsync openssh-clients
@@ -84,10 +84,7 @@ function setup_user {
     usermod -a -G kolla ${PROJECT}
 }
 
-# TODO(pbourke): remove index-url once openstack mirror refreshes
-# TODO(pbourke): could also just install kolla here if we don't want to split out the scripts - that
-# carries extra baggage though
-pip install --index-url https://pypi.org/simple/ --no-cache-dir kolla-scripts
+pip install --no-deps --no-cache-dir kolla
 
 copy_base
 copy_sudoers
