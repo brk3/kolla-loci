@@ -5,7 +5,7 @@ set -ex
 project=$1
 service=$2
 
-run_as_root=(keystone nova-libvirt)
+run_as_root=(keystone nova-libvirt nova-ssh nova-placement-api)
 user=${project}
 
 for i in "${run_as_root[@]}"; do
