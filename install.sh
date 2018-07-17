@@ -59,31 +59,24 @@ function setup_user {
     usermod -a -G kolla ${PROJECT}
 }
 
-function keystone_workarounds {
+function keystone {
     if [[ "${SERVICE}" == "keystone" ]]; then
-        yum -y install httpd mod_auth_mellon mod_auth_openidc mod_ssl mod_wsgi python-ldappool
-        rm -rf /var/cache/yum
         cp ${kolla_scripts}/keystone/keystone/keystone_bootstrap.sh \
             /usr/local/bin/kolla_keystone_bootstrap
         chmod 0755 /usr/local/bin/kolla_keystone_bootstrap
     fi
     if [[ "${SERVICE}" == "keystone-ssh" ]]; then
-        yum -y install openssh openssh-server rsync
-        rm -rf /var/cache/yum
         chsh --shell /bin/bash keystone
     fi
     if [[ "${SERVICE}" == "keystone-fernet" ]]; then
-        yum -y install rsync openssh-clients
-        rm -rf /var/cache/yum
         cp ${kolla_scripts}/keystone/keystone-fernet/fetch_fernet_tokens.py /usr/bin/
         cp ${kolla_scripts}/keystone/keystone-fernet/keystone_bootstrap.sh \
             /usr/local/bin/kolla_keystone_bootstrap
         chmod 0755 /usr/local/bin/kolla_keystone_bootstrap /usr/bin/fetch_fernet_tokens.py
     fi
-
 }
 
-function nova_workarounds {
+function nova {
     sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/kolla/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/nova/rootwrap.conf
     if [[ "${SERVICE}" == "nova-ssh" ]]; then
         yum -y install openssh openssh-server
@@ -107,7 +100,7 @@ function nova_workarounds {
     fi
 }
 
-function neutron_workarounds {
+function neutron {
     if [[ "${SERVICE}" == "neutron-server" ]]; then
         mkdir /usr/share/neutron
         cp /etc/neutron/api-paste.ini /usr/share/neutron
@@ -136,13 +129,13 @@ setup_user
 
 # TODO(pbourke): revisit workarounds once we have kolla profile in loci
 if [[ "${PROJECT}" == "keystone" ]]; then
-    keystone_workarounds
+    keystone
 fi
 
 if [[ "${PROJECT}" == "nova" ]]; then
-    nova_workarounds
+    nova
 fi
 
 if [[ "${PROJECT}" == "neutron" ]]; then
-    neutron_workarounds
+    neutron
 fi

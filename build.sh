@@ -2,26 +2,32 @@
 
 set -ex
 
-project=$1
-service=$2
+# e.g. build.sh nova nova-api
+PROJECT=$1
+SERVICE=$2
 
-run_as_root=(keystone nova-libvirt nova-ssh nova-placement-api)
-user=${project}
+RUN_AS_ROOT=(keystone nova-libvirt nova-ssh nova-placement-api)
+USER=${PROJECT}
+TAG=master
+DISTRO=centos
 
-for i in "${run_as_root[@]}"; do
-    if [[ "${i}" == "${project}" || "${i}" == "${service}" ]]; then
-        user="root"
+for i in "${RUN_AS_ROOT[@]}"; do
+    if [[ "${i}" == "${PROJECT}" || "${i}" == "${SERVICE}" ]]; then
+        USER="root"
         break
     fi
 done
 
 docker build \
-  --build-arg PROJECT=${project} \
-  --build-arg SERVICE=${service} \
-  --build-arg USER=${user} \
+  --build-arg PROJECT=${PROJECT} \
+  --build-arg SERVICE=${SERVICE} \
+  --build-arg USER=${USER} \
   --build-arg http_proxy=$http_proxy \
   --build-arg https_proxy=$https_proxy \
   --build-arg no_proxy=$no_proxy \
-  --tag operator-upstream:5000/kolla-loci-${service}:centos .
+  --tag kolla-loci/${SERVICE}-centos:${TAG} .
 
-docker push operator-upstream:5000/kolla-loci-${service}:centos
+# TODO(pbourke): add proper arg parsing for this behaviour
+docker tag kolla-loci/${SERVICE}-centos:${TAG} \
+    operator-upstream:5000/kolla-loci/${SERVICE}-centos:${TAG}
+docker push operator-upstream:5000/kolla-loci/${SERVICE}-centos:${TAG}

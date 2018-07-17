@@ -2,10 +2,8 @@
 
 set -ex
 
-# Images currently published by loci
-#loci=(cinder glance heat horizon ironic keystone neutron nova octavia)
-
-loci=(keystone glance nova neutron)
+#loci=(keystone glance nova neutron)
+loci=(keystone)
 
 git clone --depth=1 https://git.openstack.org/openstack/kolla
 

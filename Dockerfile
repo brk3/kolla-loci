@@ -1,9 +1,9 @@
 ARG PROJECT
-ARG TAG=master-centos
+ARG DISTRO=centos
+ARG TAG=master
 
-FROM loci/${PROJECT}:${TAG}
+FROM loci/kolla-${PROJECT}-${DISTRO}:${TAG}
 
-ARG DISTRO
 ARG PROJECT
 ARG SERVICE
 ARG USER=${PROJECT}
