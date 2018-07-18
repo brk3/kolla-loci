@@ -127,18 +127,20 @@ copy_start
 copy_default_configs
 setup_user
 
-if [[ "${PROJECT}" == "keystone" ]]; then
-    keystone
-fi
-
-if [[ "${PROJECT}" == "nova" ]]; then
-    nova
-fi
-
-if [[ "${PROJECT}" == "neutron" ]]; then
-    neutron
-fi
-
-if [[ "${SERVICE}" == "rabbitmq" ]]; then
-    rabbitmq
-fi
+case "${PROJECT}" in
+    keystone)
+        keystone
+        ;;
+    nova)
+        nova
+        ;;
+    neutron)
+        neutron
+        ;;
+    rabbitmq)
+        rabbitmq
+        ;;
+    mariadb)
+        mariadb
+        ;;
+esac
