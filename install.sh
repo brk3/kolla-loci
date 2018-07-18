@@ -78,22 +78,11 @@ function keystone {
 
 function nova {
     sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/kolla/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/nova/rootwrap.conf
-    if [[ "${SERVICE}" == "nova-ssh" ]]; then
-        yum -y install openssh openssh-server
-        rm -rf /var/cache/yum
-    fi
     if [[ "${SERVICE}" == "nova-placement-api" ]]; then
-        yum -y install httpd mod_ssl mod_wsgi
-        rm -rf /var/cache/yum
-
         sed -i -r 's,^(Listen 80),#\1,' /etc/httpd/conf/httpd.conf
         sed -i -r 's,^(Listen 443),#\1,' /etc/httpd/conf.d/ssl.conf
     fi
     if [[ "${SERVICE}" == "nova-compute" ]]; then
-        yum -y install http://mirror.centos.org/centos-7/7/extras/x86_64/Packages/centos-release-qemu-ev-1.0-2.el7.noarch.rpm
-        yum -y install libvirt-python qemu-img openvswitch bridge-utils
-        rm -rf /var/cache/yum
-
         # NOTE(pbourke): needs to be same as kolla's nova-libvirt
         usermod -u 42436 nova
         groupmod -g 42436 nova
@@ -105,14 +94,8 @@ function neutron {
         mkdir /usr/share/neutron
         cp /etc/neutron/api-paste.ini /usr/share/neutron
     fi
-    if [[ "${SERVICE}" == "neutron-openvswitch-agent" ]]; then
-        yum -y install openvswitch
-        rm -rf /var/cache/yum
-    fi
     if [[ "${SERVICE}" == "neutron-l3-agent" || "neutron-dhcp-agent" ]]; then
         sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/kolla/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/neutron/rootwrap.conf
-        yum -y install iproute
-        rm -rf /var/cache/yum
     fi
 }
 
@@ -127,7 +110,6 @@ copy_start
 copy_default_configs
 setup_user
 
-# TODO(pbourke): revisit workarounds once we have kolla profile in loci
 if [[ "${PROJECT}" == "keystone" ]]; then
     keystone
 fi
