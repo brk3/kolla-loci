@@ -7,22 +7,24 @@ export REGISTRY="operator-upstream:5000"
 export TAG="master"
 export DISTRO="centos"
 
-PROJECTS=(keystone glance nova neutron)
+PROJECTS=(keystone glance nova neutron rabbitmq mariadb)
 TMPDIR=$(mktemp -d)
 
 build() {
     local project=$1
     local service=$2
 
-    local run_as_root=(keystone nova-libvirt nova-ssh nova-placement-api)
-    local user=${project}
-
-    for i in "${run_as_root[@]}"; do
-        if [[ "${i}" == "${project}" || "${i}" == "${service}" ]]; then
-            user="root"
-            break
-        fi
-    done
+    case "${service}" in
+        keystone|nova-libvirt|nova-ssh|nova-placement-api)
+            user=root
+            ;;
+        mariadb)
+            user=mysql
+            ;;
+        *)
+            user=${project}
+            ;;
+    esac
 
     docker build \
       --build-arg PROJECT=${project} \

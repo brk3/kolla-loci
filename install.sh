@@ -56,7 +56,7 @@ function copy_default_configs {
 
 function setup_user {
     groupadd --force --gid 42400 kolla
-    usermod -a -G kolla ${PROJECT}
+    usermod -a -G kolla ${USER}
 }
 
 function keystone {
@@ -112,14 +112,16 @@ function rabbitmq {
         /usr/local/bin/rabbitmq_get_gospel_node
 }
 
+function mariadb {
+    cp ${kolla_scripts}/mariadb/security_reset.expect /usr/local/bin/kolla_security_reset
+    chmod 755 /usr/local/bin/kolla_security_reset
+    rm -rf /var/lib/mysql/*
+}
+
 pip install --no-deps --no-cache-dir kolla
 
 mkdir /var/lib/kolla
 ln -s /var/lib/openstack /var/lib/kolla/venv
-
-if [[ ${PROJECT} == "infra" ]]; then
-    PROJECT=${SERVICE}
-fi
 
 copy_base
 copy_sudoers
