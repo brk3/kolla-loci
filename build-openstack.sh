@@ -31,12 +31,12 @@ build() {
       --build-arg http_proxy=$http_proxy \
       --build-arg https_proxy=$https_proxy \
       --build-arg no_proxy=$no_proxy \
-      --tag kolla-loci/${service}-centos:${TAG} .
+      --tag kolla-loci/${service}-${DISTRO}:${TAG} .
 
     if [[ "${PUSH}" == "true" ]]; then
-        docker tag kolla-loci/${service}-centos:${TAG} \
-            ${REGISTRY}/kolla-loci/${service}-centos:${TAG}
-        docker push ${REGISTRY}/kolla-loci/${service}-centos:${TAG}
+        docker tag kolla-loci/${service}-${DISTRO}:${TAG} \
+            ${REGISTRY}/kolla-loci/${service}-${DISTRO}:${TAG}
+        docker push ${REGISTRY}/kolla-loci/${service}-${DISTRO}:${TAG}
     fi
 }
 

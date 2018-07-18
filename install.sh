@@ -99,10 +99,27 @@ function neutron {
     fi
 }
 
+function rabbitmq {
+    rm -rf /var/lib/rabbitmq/*
+    ln -s /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.* /usr/lib/rabbitmq/lib/rabbitmq_server-3.6
+    curl -o \
+        /usr/lib/rabbitmq/lib/rabbitmq_server-3.6/plugins/rabbitmq_clusterer-3.6.x-667f92b0.ez \
+        http://www.rabbitmq.com/community-plugins/v3.6.x/rabbitmq_clusterer-3.6.x-667f92b0.ez
+    /usr/lib/rabbitmq/bin/rabbitmq-plugins enable --offline \
+        rabbitmq_management rabbitmq_clusterer
+
+    cp ${kolla_scripts}/rabbitmq/rabbitmq_get_gospel_node.py \
+        /usr/local/bin/rabbitmq_get_gospel_node
+}
+
 pip install --no-deps --no-cache-dir kolla
 
 mkdir /var/lib/kolla
 ln -s /var/lib/openstack /var/lib/kolla/venv
+
+if [[ ${PROJECT} == "infra" ]]; then
+    PROJECT=${SERVICE}
+fi
 
 copy_base
 copy_sudoers
@@ -120,4 +137,8 @@ fi
 
 if [[ "${PROJECT}" == "neutron" ]]; then
     neutron
+fi
+
+if [[ "${SERVICE}" == "rabbitmq" ]]; then
+    rabbitmq
 fi
