@@ -7,17 +7,17 @@ export REGISTRY="operator-upstream:5000"
 export TAG="master"
 export DISTRO="centos"
 
-export PROJECTS=(keystone glance nova neutron)
-export RUN_AS_ROOT=(keystone nova-libvirt nova-ssh nova-placement-api)
-export TMPDIR=$(mktemp -d)
+PROJECTS=(keystone glance nova neutron)
+TMPDIR=$(mktemp -d)
 
 build() {
     local project=$1
     local service=$2
 
+    local run_as_root=(keystone nova-libvirt nova-ssh nova-placement-api)
     local user=${project}
 
-    for i in "${RUN_AS_ROOT[@]}"; do
+    for i in "${run_as_root[@]}"; do
         if [[ "${i}" == "${project}" || "${i}" == "${service}" ]]; then
             user="root"
             break
