@@ -95,6 +95,10 @@ function nova {
         usermod -u 42436 nova
         groupmod -g 42436 nova
     fi
+    if [[ "${SERVICE}" == "nova-ssh" ]]; then
+        mkdir -p /var/run/sshd
+        chmod 0755 /var/run/sshd
+    fi
 }
 
 function neutron {

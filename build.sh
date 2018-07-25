@@ -2,10 +2,9 @@
 
 set -ex
 
-export PUSH="true"
-export REGISTRY="operator-upstream:5000"
-export TAG="master"
-export KOLLA_BASE_DISTRO="centos"
+export KOLLA_BASE_DISTRO=${KOLLA_BASE_DISTRO:="centos"}
+export REGISTRY=${REGISTRY:="operator-upstream:5000"}
+export TAG=${TAG:="master"}
 
 PROJECTS=(keystone glance nova neutron rabbitmq mariadb)
 TMPDIR=$(mktemp -d)
@@ -13,16 +12,27 @@ TMPDIR=$(mktemp -d)
 build_loci() {
     local project=$1
 
-    git init ${TMPDIR}/loci
-    pushd ${TMPDIR}/loci
-    git pull https://git.openstack.org/openstack/loci refs/changes/55/583255/6
+    #git init ${TMPDIR}/loci
+    #pushd ${TMPDIR}/loci
+    #git pull https://git.openstack.org/openstack/loci refs/changes/55/583255/7
+    pushd /root/loci
 
     case "${KOLLA_BASE_DISTRO}" in
         centos)
-            from=centos:7
+            docker build dockerfiles/centos/ \
+                --build-arg http_proxy=$http_proxy \
+                --build-arg https_proxy=$https_proxy \
+                --build-arg no_proxy=$no_proxy \
+                --tag loci/centos:master
+            from=loci/centos:master
             ;;
         ubuntu)
-            from=ubuntu:xenial
+            docker build dockerfiles/ubuntu/ \
+                --build-arg http_proxy=$http_proxy \
+                --build-arg https_proxy=$https_proxy \
+                --build-arg no_proxy=$no_proxy \
+                --tag loci/ubuntu:master
+            from=loci/ubuntu:master
             ;;
         *)
             echo "Unknown distro: ${KOLLA_BASE_DISTRO}"
@@ -69,7 +79,7 @@ build_kolla_loci() {
       --build-arg no_proxy=$no_proxy \
       --tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} .
 
-    if [[ "${PUSH}" == "true" ]]; then
+    if [[ "${REGISTRY}" != "" ]]; then
         docker tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} \
             ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
         docker push ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
