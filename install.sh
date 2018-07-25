@@ -66,13 +66,21 @@ function keystone {
         chmod 0755 /usr/local/bin/kolla_keystone_bootstrap
     fi
     if [[ "${SERVICE}" == "keystone-ssh" ]]; then
+        mkdir -p /var/run/sshd
+        chmod 0755 /var/run/sshd
         chsh --shell /bin/bash keystone
+        # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
+        yum -y install rsync
+        rm -rf /var/cache/yum
     fi
     if [[ "${SERVICE}" == "keystone-fernet" ]]; then
         cp ${kolla_scripts}/keystone/keystone-fernet/fetch_fernet_tokens.py /usr/bin/
         cp ${kolla_scripts}/keystone/keystone-fernet/keystone_bootstrap.sh \
             /usr/local/bin/kolla_keystone_bootstrap
         chmod 0755 /usr/local/bin/kolla_keystone_bootstrap /usr/bin/fetch_fernet_tokens.py
+        # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
+        yum -y install rsync openssh-clients
+        rm -rf /var/cache/yum
     fi
 }
 
