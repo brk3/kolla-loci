@@ -9,7 +9,7 @@ export REGISTRY=my-registry:5000
 ./build.sh
 ```
 
-This will build all supported images by default. Specific ones can also be passed via the arguments:
+This will build all supported images by default. Specific ones can also be passed using arguments:
 
 ``` bash
 ./build.sh keystone
@@ -29,3 +29,10 @@ keystone_image_full: "my-registry:5000/kolla-loci/keystone-centos:master"
 keystone_fernet_image_full: "my-registry:5000/kolla-loci/keystone-fernet-centos:master"
 keystone_ssh_image_full: "my-registry:5000/kolla-loci/keystone-ssh-centos:master"
 ```
+
+# Project Status
+The following images should currently work (no CI/CD as of yet)
+* keystone
+* glance
+* nova
+* neutron
