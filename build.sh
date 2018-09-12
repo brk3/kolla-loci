@@ -52,10 +52,22 @@ build_loci() {
         --build-arg http_proxy=$http_proxy \
         --build-arg https_proxy=$https_proxy \
         --build-arg no_proxy=$no_proxy \
+        --build-arg PROJECT=requirements \
+        --build-arg FROM=${from} \
+        --tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+
+    docker tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG} \
+        ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+    docker push ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+
+    docker build . \
+        --build-arg http_proxy=$http_proxy \
+        --build-arg https_proxy=$https_proxy \
+        --build-arg no_proxy=$no_proxy \
         --build-arg PROJECT=${loci_project} \
         --build-arg PROFILES="kolla ${project}" \
         --build-arg FROM=${from} \
-        --build-arg WHEELS="loci/requirements:${TAG}-${KOLLA_BASE_DISTRO}" \
+        --build-arg WHEELS="${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}" \
         --tag loci/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG}
 
     popd
@@ -87,11 +99,9 @@ build_kolla_loci() {
       --build-arg no_proxy=$no_proxy \
       --tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} .
 
-    if [[ "${REGISTRY}" != "" ]]; then
-        docker tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} \
-            ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
-        docker push ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
-    fi
+    docker tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} \
+        ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
+    docker push ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}
 }
 
 export -f build_loci
