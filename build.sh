@@ -3,8 +3,9 @@
 set -ex
 
 export KOLLA_BASE_DISTRO=${KOLLA_BASE_DISTRO:="centos"}
-export REGISTRY=${REGISTRY:="operator-upstream:5000"}
+export REGISTRY=${REGISTRY:="myregistry:5000"}
 export TAG=${TAG:="master"}
+export BUILD_WHEELS=${BUILD_WHEELS:="no"}
 
 PROJECTS=(keystone glance nova neutron rabbitmq mariadb)
 TMPDIR=$(mktemp -d)
@@ -48,17 +49,22 @@ build_loci() {
             ;;
     esac
 
-    docker build . \
-        --build-arg http_proxy=$http_proxy \
-        --build-arg https_proxy=$https_proxy \
-        --build-arg no_proxy=$no_proxy \
-        --build-arg PROJECT=requirements \
-        --build-arg FROM=${from} \
-        --tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+    wheels="loci/requirements:${TAG}-${KOLLA_BASE_DISTRO}"
+    if [[ "${BUILD_WHEELS}" == "yes" ]]; then
+        docker build . \
+            --build-arg http_proxy=$http_proxy \
+            --build-arg https_proxy=$https_proxy \
+            --build-arg no_proxy=$no_proxy \
+            --build-arg PROJECT=requirements \
+            --build-arg FROM=${from} \
+            --tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
 
-    docker tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG} \
-        ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
-    docker push ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+        docker tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG} \
+            ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+        docker push ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
+
+        wheels="${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}"
+  fi
 
     docker build . \
         --build-arg http_proxy=$http_proxy \
@@ -67,7 +73,7 @@ build_loci() {
         --build-arg PROJECT=${loci_project} \
         --build-arg PROFILES="kolla ${project}" \
         --build-arg FROM=${from} \
-        --build-arg WHEELS="${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}" \
+        --build-arg WHEELS="${wheels}" \
         --tag loci/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG}
 
     popd
