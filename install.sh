@@ -90,10 +90,8 @@ function nova {
         sed -i -r 's,^(Listen 80),#\1,' /etc/httpd/conf/httpd.conf
         sed -i -r 's,^(Listen 443),#\1,' /etc/httpd/conf.d/ssl.conf
     fi
-    if [[ "${SERVICE}" == "nova-compute" ]]; then
-        # NOTE(pbourke): needs to be same as kolla's nova-libvirt
-        usermod -u 42436 nova
-        groupmod -g 42436 nova
+    if [[ "${SERVICE}" == "nova-libvirt" ]]; then
+        usermod --append --groups qemu nova
     fi
     if [[ "${SERVICE}" == "nova-ssh" ]]; then
         mkdir -p /var/run/sshd
