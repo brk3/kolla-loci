@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -ex
 
 kolla_scripts="/var/lib/openstack/share/kolla/docker"
 
