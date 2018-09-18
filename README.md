@@ -24,29 +24,30 @@ export KOLLA_BASE_DISTRO=ubuntu
 # Using in kolla-ansible
 Instruct kolla-ansible to use the new images via globals.yml:
 ``` yaml
-glance_registry_image_full: "{{ loci_registry }}/kolla-loci/glance-registry-centos:master"
-glance_api_image_full: "{{ loci_registry }}/kolla-loci/glance-api-centos:master"
+glance_registry_image_full: "{{ loci_registry }}/kolla-loci/glance-registry-{{ kolla_base_distro }}:master"
+glance_api_image_full: "{{ loci_registry }}/kolla-loci/glance-api-{{ kolla_base_distro }}:master"
 
-keystone_image_full: "{{ loci_registry }}/kolla-loci/keystone-centos:master"
-keystone_fernet_image_full: "{{ loci_registry }}/kolla-loci/keystone-fernet-centos:master"
-keystone_ssh_image_full: "{{ loci_registry }}/kolla-loci/keystone-ssh-centos:master"
+keystone_image_full: "{{ loci_registry }}/kolla-loci/keystone-{{ kolla_base_distro }}:master"
+keystone_fernet_image_full: "{{ loci_registry }}/kolla-loci/keystone-fernet-{{ kolla_base_distro }}:master"
+keystone_ssh_image_full: "{{ loci_registry }}/kolla-loci/keystone-ssh-{{ kolla_base_distro }}:master"
 
-neutron_dhcp_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-dhcp-agent-centos:master"
-neutron_l3_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-l3-agent-centos:master"
-neutron_metadata_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-metadata-agent-centos:master"
-neutron_openvswitch_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-openvswitch-agent-centos:master"
-neutron_server_image_full: "{{ loci_registry }}/kolla-loci/neutron-server-centos:master"
+neutron_dhcp_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-dhcp-agent-{{ kolla_base_distro }}:master"
+neutron_l3_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-l3-agent-{{ kolla_base_distro }}:master"
+neutron_metadata_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-metadata-agent-{{ kolla_base_distro }}:master"
+neutron_openvswitch_agent_image_full: "{{ loci_registry }}/kolla-loci/neutron-openvswitch-agent-{{ kolla_base_distro }}:master"
+neutron_server_image_full: "{{ loci_registry }}/kolla-loci/neutron-server-{{ kolla_base_distro }}:master"
 
-nova_ssh_image_full: "{{ loci_registry }}/kolla-loci/nova-ssh-centos:master"
-nova_conductor_image_full: "{{ loci_registry }}/kolla-loci/nova-conductor-centos:master"
-nova_consoleauth_image_full: "{{ loci_registry }}/kolla-loci/nova-consoleauth-centos:master"
-nova_novncproxy_image_full: "{{ loci_registry }}/kolla-loci/nova-novncproxy-centos:master"
-nova_spicehtml5proxy_image_full: "{{ loci_registry }}/kolla-loci/nova-spicehtml5proxy-centos:master"
-nova_scheduler_image_full: "{{ loci_registry }}/kolla-loci/nova-scheduler-centos:master"
-nova_compute_image_full: "{{ loci_registry }}/kolla-loci/nova-compute-centos:master"
-nova_api_image_full: "{{ loci_registry }}/kolla-loci/nova-api-centos:master"
-nova_serialproxy_image_full: "{{ loci_registry }}/kolla-loci/nova-serialproxy-centos:master"
-placement_api_image_full: "{{ loci_registry }}/kolla-loci/nova-placement-api-centos:master"
+nova_libvirt_image_full: "{{ loci_registry }}/kolla-loci/nova-libvirt-{{ kolla_base_distro }}:master"
+nova_ssh_image_full: "{{ loci_registry }}/kolla-loci/nova-ssh-{{ kolla_base_distro }}:master"
+nova_conductor_image_full: "{{ loci_registry }}/kolla-loci/nova-conductor-{{ kolla_base_distro }}:master"
+nova_consoleauth_image_full: "{{ loci_registry }}/kolla-loci/nova-consoleauth-{{ kolla_base_distro }}:master"
+nova_novncproxy_image_full: "{{ loci_registry }}/kolla-loci/nova-novncproxy-{{ kolla_base_distro }}:master"
+nova_spicehtml5proxy_image_full: "{{ loci_registry }}/kolla-loci/nova-spicehtml5proxy-{{ kolla_base_distro }}:master"
+nova_scheduler_image_full: "{{ loci_registry }}/kolla-loci/nova-scheduler-{{ kolla_base_distro }}:master"
+nova_compute_image_full: "{{ loci_registry }}/kolla-loci/nova-compute-{{ kolla_base_distro }}:master"
+nova_api_image_full: "{{ loci_registry }}/kolla-loci/nova-api-{{ kolla_base_distro }}:master"
+nova_serialproxy_image_full: "{{ loci_registry }}/kolla-loci/nova-serialproxy-{{ kolla_base_distro }}:master"
+placement_api_image_full: "{{ loci_registry }}/kolla-loci/nova-placement-api-{{ kolla_base_distro }}:master"
 ```
 
 # Project Status
