@@ -9,6 +9,7 @@ export BUILD_WHEELS=${BUILD_WHEELS:="no"}
 
 PROJECTS=(keystone glance nova neutron rabbitmq mariadb)
 TMPDIR=$(mktemp -d)
+mkdir -p /tmp/kolla-loci-logs
 
 build_loci() {
     local project=$1
@@ -74,7 +75,8 @@ build_loci() {
         --build-arg PROFILES="kolla ${project}" \
         --build-arg FROM=${from} \
         --build-arg WHEELS="${wheels}" \
-        --tag loci/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG}
+        --tag loci/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG} \
+        | tee /tmp/kolla-loci-logs/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG}.log
 
     popd
 }
@@ -103,7 +105,8 @@ build_kolla_loci() {
       --build-arg http_proxy=$http_proxy \
       --build-arg https_proxy=$https_proxy \
       --build-arg no_proxy=$no_proxy \
-      --tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} .
+      --tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} . \
+      | tee /tmp/kolla-loci-logs/${service}-${KOLLA_BASE_DISTRO}:${TAG}.log
 
     docker tag kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG} \
         ${REGISTRY}/kolla-loci/${service}-${KOLLA_BASE_DISTRO}:${TAG}

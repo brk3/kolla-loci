@@ -69,28 +69,40 @@ function keystone {
         mkdir -p /var/run/sshd
         chmod 0755 /var/run/sshd
         chsh --shell /bin/bash keystone
-        # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
-        yum -y install rsync
-        rm -rf /var/cache/yum
+        if [[ "${KOLLA_BASE_DISTRO}" == "centos" ]]; then
+            # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
+            yum -y install rsync
+            rm -rf /var/cache/yum
+        fi
     fi
     if [[ "${SERVICE}" == "keystone-fernet" ]]; then
         cp ${kolla_scripts}/keystone/keystone-fernet/fetch_fernet_tokens.py /usr/bin/
         cp ${kolla_scripts}/keystone/keystone-fernet/keystone_bootstrap.sh \
             /usr/local/bin/kolla_keystone_bootstrap
         chmod 0755 /usr/local/bin/kolla_keystone_bootstrap /usr/bin/fetch_fernet_tokens.py
-        # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
-        yum -y install rsync openssh-clients
-        rm -rf /var/cache/yum
+        if [[ "${KOLLA_BASE_DISTRO}" == "centos" ]]; then
+            # NOTE(pbourke): loci autocleans git which in turn incorrectly removes these packages
+            yum -y install rsync openssh-clients
+            rm -rf /var/cache/yum
+        fi
     fi
 }
 
 function nova {
     sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/kolla/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/nova/rootwrap.conf
     if [[ "${SERVICE}" == "nova-placement-api" ]]; then
-        sed -i -r 's,^(Listen 80),#\1,' /etc/httpd/conf/httpd.conf
-        sed -i -r 's,^(Listen 443),#\1,' /etc/httpd/conf.d/ssl.conf
+        if [[ "${KOLLA_BASE_DISTRO}" == "centos" ]]; then
+            sed -i -r 's,^(Listen 80),#\1,' /etc/httpd/conf/httpd.conf
+            sed -i -r 's,^(Listen 443),#\1,' /etc/httpd/conf.d/ssl.conf
+        elif [[ "${KOLLA_BASE_DISTRO}" == "ubuntu" ]]; then
+            truncate -s 0 /etc/apache2/ports.conf
+        fi
     fi
     if [[ "${SERVICE}" == "nova-libvirt" ]]; then
+        if [[ "${KOLLA_BASE_DISTRO}" == "ubuntu" ]]; then
+            groupadd --force --gid 42427 qemu
+            useradd -M --shell /usr/sbin/nologin --uid 42427 --gid 42427 qemu
+        fi
         usermod --append --groups qemu nova
     fi
     if [[ "${SERVICE}" == "nova-ssh" ]]; then
