@@ -48,6 +48,8 @@ nova_compute_image_full: "{{ loci_registry }}/kolla-loci/nova-compute-{{ kolla_b
 nova_api_image_full: "{{ loci_registry }}/kolla-loci/nova-api-{{ kolla_base_distro }}:master"
 nova_serialproxy_image_full: "{{ loci_registry }}/kolla-loci/nova-serialproxy-{{ kolla_base_distro }}:master"
 placement_api_image_full: "{{ loci_registry }}/kolla-loci/nova-placement-api-{{ kolla_base_distro }}:master"
+
+mariadb_image_full: "{{ loci_registry }}/kolla-loci/mariadb-{{ kolla_base_distro }}:master"
 ```
 
 # Project Status
@@ -56,6 +58,7 @@ The following images should currently work (no CI/CD as of yet)
 * glance
 * nova
 * neutron
+* mariadb
 
 # Known Issues
 * For some reason nova\_scheduler will exit on first deploy, and requires to be manually started via

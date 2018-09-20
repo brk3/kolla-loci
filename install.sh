@@ -138,6 +138,11 @@ function mariadb {
     cp ${kolla_scripts}/mariadb/security_reset.expect /usr/local/bin/kolla_security_reset
     chmod 755 /usr/local/bin/kolla_security_reset
     rm -rf /var/lib/mysql/*
+    if [[ "${KOLLA_BASE_DISTRO}" == "ubuntu" ]]; then
+        mkdir -p /var/run/mysqld
+        chown mysql /var/run/mysqld
+        chmod 755 /var/run/mysqld
+    fi
 }
 
 pip install --no-deps --no-cache-dir kolla

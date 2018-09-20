@@ -7,7 +7,7 @@ export REGISTRY=${REGISTRY:="myregistry:5000"}
 export TAG=${TAG:="master"}
 export BUILD_WHEELS=${BUILD_WHEELS:="no"}
 
-PROJECTS=(keystone glance nova neutron rabbitmq mariadb)
+PROJECTS=(keystone glance nova neutron mariadb)
 TMPDIR=$(mktemp -d)
 mkdir -p /tmp/kolla-loci-logs
 
