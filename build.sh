@@ -7,26 +7,25 @@ export REGISTRY=${REGISTRY:="myregistry:5000"}
 export TAG=${TAG:="master"}
 export BUILD_WHEELS=${BUILD_WHEELS:="no"}
 
-PROJECTS=(keystone glance nova neutron mariadb)
+PROJECTS=(keystone glance nova neutron mariadb cron)
 TMPDIR=$(mktemp -d)
 mkdir -p /tmp/kolla-loci-logs
 
 build_loci() {
     local project=$1
 
-    #git init ${TMPDIR}/loci
-    #pushd ${TMPDIR}/loci
-    #git pull https://git.openstack.org/openstack/loci refs/changes/55/583255/7
+    # TODO(pbourke): remove if/when https://review.openstack.org/#/c/583255/ merges
     pushd /root/loci
 
     case "${project}" in
-        rabbitmq|mariadb)
+        rabbitmq|mariadb|cron)
             local loci_project="infra"
             ;;
         *)
             local loci_project="${project}"
     esac
 
+    # Build the top level loci image
     case "${KOLLA_BASE_DISTRO}" in
         centos)
             docker build dockerfiles/centos/ \
@@ -34,7 +33,6 @@ build_loci() {
                 --build-arg https_proxy=$https_proxy \
                 --build-arg no_proxy=$no_proxy \
                 --tag loci/centos:master
-            from=loci/centos:master
             ;;
         ubuntu)
             docker build dockerfiles/ubuntu/ \
@@ -42,7 +40,6 @@ build_loci() {
                 --build-arg https_proxy=$https_proxy \
                 --build-arg no_proxy=$no_proxy \
                 --tag loci/ubuntu:master
-            from=loci/ubuntu:master
             ;;
         *)
             echo "Unknown distro: ${KOLLA_BASE_DISTRO}"
@@ -50,6 +47,7 @@ build_loci() {
             ;;
     esac
 
+    # Build loci requirements image (wheels)
     wheels="loci/requirements:${TAG}-${KOLLA_BASE_DISTRO}"
     if [[ "${BUILD_WHEELS}" == "yes" ]]; then
         docker build . \
@@ -57,23 +55,26 @@ build_loci() {
             --build-arg https_proxy=$https_proxy \
             --build-arg no_proxy=$no_proxy \
             --build-arg PROJECT=requirements \
-            --build-arg FROM=${from} \
+            --build-arg FROM=loci/${KOLLA_BASE_DISTRO}:${TAG} \
             --tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
 
+        # TODO(pbourke): registry push should not be necessary but local wheel layers in loci need
+        # some improvement
         docker tag loci/requirements-${KOLLA_BASE_DISTRO}:${TAG} \
             ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
         docker push ${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}
 
         wheels="${REGISTRY}/loci/requirements-${KOLLA_BASE_DISTRO}:${TAG}"
-  fi
+    fi
 
+    # Build the main loci image
     docker build . \
         --build-arg http_proxy=$http_proxy \
         --build-arg https_proxy=$https_proxy \
         --build-arg no_proxy=$no_proxy \
         --build-arg PROJECT=${loci_project} \
         --build-arg PROFILES="kolla ${project}" \
-        --build-arg FROM=${from} \
+        --build-arg FROM=loci/${KOLLA_BASE_DISTRO}:${TAG} \
         --build-arg WHEELS="${wheels}" \
         --tag loci/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG} \
         | tee /tmp/kolla-loci-logs/kolla-${project}-${KOLLA_BASE_DISTRO}:${TAG}.log
@@ -86,7 +87,7 @@ build_kolla_loci() {
     local service=$2
 
     case "${service}" in
-        keystone*|nova-libvirt|nova-ssh|nova-placement-api)
+        keystone*|nova-libvirt|nova-ssh|nova-placement-api|cron)
             user=root
             ;;
         mariadb)
